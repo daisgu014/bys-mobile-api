@@ -9,7 +9,7 @@ namespace BYS.Mobile.API.Share.Request
         public int PageSize { get; set; } = 100;
         [DefaultValue(1)]
         public int PageIndex { get; set; } = 1;
-        public string Filter { get; set; }
+        public string Search { get; set; }
         public int? Skip { get; set; }
         [DefaultValue("CreatedAt")]
         public string SortField { get; set; } = "CreatedAt";
