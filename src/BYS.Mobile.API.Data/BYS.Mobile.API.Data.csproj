@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BYS.Mobile.API.Shared\BYS.Mobile.API.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+  <!-- Provider bạn đang dùng -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
+
+    <!-- Tools: mang cmdlet Scaffold-DbContext, Add-Migration, ...   -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8" PrivateAssets="All" />
+
+    <!-- Design-time helpers (dotnet ef, migrations CLI) -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8" />
+
+    <!-- Các gói cấu hình (nếu cần đọc appsettings.json ...) -->
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.*" />
+
+    <!-- Xoá nếu không còn dùng PostgreSQL -->
+    <!-- <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.*" /> -->
+  </ItemGroup>
+
+</Project>

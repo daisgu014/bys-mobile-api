@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Connections" Version="1.*" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.*" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.22" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BYS.Mobile.API.Data\BYS.Mobile.API.Data.csproj" />
+  </ItemGroup>
+
+</Project>

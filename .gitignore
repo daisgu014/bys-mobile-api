@@ -1,0 +1,16 @@
+**.vs/
+**/bin/
+**/obj/
+
+build
+bin
+
+HELP.md
+
+### VS Code ###
+.vscode/
+Migrations/
+/src/BYS.Moble.API.API/BYS.Moble.API.API.csproj.user
+/src/BYS.Moble.API.API/appsettings.Development.json
+/src/BYS.Moble.API.API/appsettings.json
+/src/BYS.Moble.API.API/Properties/launchSettings.json
