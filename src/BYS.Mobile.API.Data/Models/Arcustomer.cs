@@ -8,7 +8,7 @@ namespace BYS.Mobile.API.Data.Models;
 
 [Table("ARCustomers")]
 [Index("ArcustomerNo", "FkBrbranchId", "ArcustomerTypeCombo", Name = "Idx_ARCustomers")]
-public class Arcustomer : IIdentity<int>
+public partial class Arcustomer : IIdentity<int>
 {
     [Key]
     [Column("ARCustomerID")]
@@ -726,4 +726,16 @@ public class Arcustomer : IIdentity<int>
     [Column("ARCustomerInvoiceAddressEmail")]
     [StringLength(50)]
     public string ArcustomerInvoiceAddressEmail { get; set; }
+
+    [InverseProperty("FkArcustomer")]
+    public virtual ICollection<ArpriceSheet> ArpriceSheets { get; set; } = new List<ArpriceSheet>();
+
+    [InverseProperty("FkArcustomer")]
+    public virtual ICollection<Arproposal> Arproposals { get; set; } = new List<Arproposal>();
+
+    [InverseProperty("FkArcustomer")]
+    public virtual ICollection<IcproductAttribute> IcproductAttributes { get; set; } = new List<IcproductAttribute>();
+
+    [InverseProperty("FkArcustomer")]
+    public virtual ICollection<Icproduct> Icproducts { get; set; } = new List<Icproduct>();
 }

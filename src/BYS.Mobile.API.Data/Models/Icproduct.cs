@@ -605,6 +605,42 @@ public partial class Icproduct : IIdentity<int>
     [InverseProperty("FkIcsectionProduct")]
     public virtual ICollection<ArproposalItem> ArproposalItemFkIcsectionProducts { get; set; } = new List<ArproposalItem>();
 
+    [ForeignKey("FkArcustomerId")]
+    [InverseProperty("Icproducts")]
+    public virtual Arcustomer FkArcustomer { get; set; }
+
+    [ForeignKey("FkIcprodAttPackingMaterialSizeId")]
+    [InverseProperty("IcproductFkIcprodAttPackingMaterialSizes")]
+    public virtual IcproductAttribute FkIcprodAttPackingMaterialSize { get; set; }
+
+    [ForeignKey("FkIcprodAttPackingMaterialSpecialityId")]
+    [InverseProperty("IcproductFkIcprodAttPackingMaterialSpecialities")]
+    public virtual IcproductAttribute FkIcprodAttPackingMaterialSpeciality { get; set; }
+
+    [ForeignKey("FkIcprodAttPackingMaterialWeightPerVolumeId")]
+    [InverseProperty("IcproductFkIcprodAttPackingMaterialWeightPerVolumes")]
+    public virtual IcproductAttribute FkIcprodAttPackingMaterialWeightPerVolume { get; set; }
+
+    [ForeignKey("FkIcproductAttributeColorId")]
+    [InverseProperty("IcproductFkIcproductAttributeColors")]
+    public virtual IcproductAttribute FkIcproductAttributeColor { get; set; }
+
+    [ForeignKey("FkIcproductAttributeFinishingId")]
+    [InverseProperty("IcproductFkIcproductAttributeFinishings")]
+    public virtual IcproductAttribute FkIcproductAttributeFinishing { get; set; }
+
+    [ForeignKey("FkIcproductAttributeQualityId")]
+    [InverseProperty("IcproductFkIcproductAttributeQualities")]
+    public virtual IcproductAttribute FkIcproductAttributeQuality { get; set; }
+
+    [ForeignKey("FkIcproductAttributeSemiProductSpecialityId")]
+    [InverseProperty("IcproductFkIcproductAttributeSemiProductSpecialities")]
+    public virtual IcproductAttribute FkIcproductAttributeSemiProductSpeciality { get; set; }
+
+    [ForeignKey("FkIcproductAttributeWoodTypeId")]
+    [InverseProperty("IcproductFkIcproductAttributeWoodTypes")]
+    public virtual IcproductAttribute FkIcproductAttributeWoodType { get; set; }
+
     [ForeignKey("FkIcproductBasicUnitId")]
     [InverseProperty("IcproductFkIcproductBasicUnits")]
     public virtual IcmeasureUnit FkIcproductBasicUnit { get; set; }
@@ -624,6 +660,10 @@ public partial class Icproduct : IIdentity<int>
     [ForeignKey("FkIcproductSaleUnitId")]
     [InverseProperty("IcproductFkIcproductSaleUnits")]
     public virtual IcmeasureUnit FkIcproductSaleUnit { get; set; }
+
+    [ForeignKey("FkIcproductThickGroupId")]
+    [InverseProperty("IcproductFkIcproductThickGroups")]
+    public virtual IcproductAttribute FkIcproductThickGroup { get; set; }
 
     [InverseProperty("FkIcproductCarcass")]
     public virtual ICollection<Icproduct> InverseFkIcproductCarcass { get; set; } = new List<Icproduct>();

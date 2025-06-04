@@ -18,6 +18,7 @@ public partial class ArpriceSheetItem : IIdentity<int>
         set => ArpriceSheetItemId = value;
     }
 
+
     [Column("AACreatedDate", TypeName = "datetime")]
     public DateTime? AacreatedDate { get; set; }
 

@@ -9,6 +9,8 @@ namespace BYS.Mobile.API.Service
         public static void RegisterServiceDependencies(this IServiceCollection services)
         {
            services.AddScoped<IArcustomerService, ArcustomerService>();
+           services.AddScoped<IArproposalService, ArproposalService>();
+           services.AddScoped<IIcproductService, IcproductService>();
         }
     }
 }

@@ -326,6 +326,14 @@ public partial class ArproposalItem : IIdentity<int>
     [InverseProperty("ArproposalItemFkIcproducts")]
     public virtual Icproduct FkIcproduct { get; set; }
 
+    [ForeignKey("FkIcproductAttributeColorId")]
+    [InverseProperty("ArproposalItemFkIcproductAttributeColors")]
+    public virtual IcproductAttribute FkIcproductAttributeColor { get; set; }
+
+    [ForeignKey("FkIcproductAttributeWoodTypeId")]
+    [InverseProperty("ArproposalItemFkIcproductAttributeWoodTypes")]
+    public virtual IcproductAttribute FkIcproductAttributeWoodType { get; set; }
+
     [ForeignKey("FkIcsectionProductId")]
     [InverseProperty("ArproposalItemFkIcsectionProducts")]
     public virtual Icproduct FkIcsectionProduct { get; set; }
