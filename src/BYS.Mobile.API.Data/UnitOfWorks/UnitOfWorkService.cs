@@ -27,12 +27,15 @@ public sealed class UnitOfWorkService : IUnitOfWorkService, IAsyncDisposable
     public Task<int> SaveChangesAsync(CancellationToken ct = default) =>
         _dbContext.SaveChangesAsync(ct);
 
-    public async Task CommitAsync(CancellationToken ct = default)
-    {
-        if (_sqlTx is null) return;
+    public Task CommitAsync(CancellationToken ct = default) =>
+        _sqlTx is null
+            ? _dbContext.SaveChangesAsync(ct)            // auto-commit mode
+            : CommitWithTransactionAsync(ct);
 
+    public async Task CommitWithTransactionAsync(CancellationToken ct = default)
+    {
         await _dbContext.SaveChangesAsync(ct);
-        await _sqlTx.CommitAsync(ct);
+        await _sqlTx!.CommitAsync(ct);
         await _sqlTx.DisposeAsync();
         _sqlTx = null;
     }

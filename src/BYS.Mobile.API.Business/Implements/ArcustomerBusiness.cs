@@ -3,6 +3,7 @@ using BYS.Mobile.API.Business.Abstractions;
 using BYS.Mobile.API.Data.Models;
 using BYS.Mobile.API.Data.Repositories.Abtractions;
 using BYS.Mobile.API.Data.UnitOfWorks;
+using BYS.Mobile.API.Service.Abtractions;
 using BYS.Mobile.API.Share.Request;
 using BYS.Mobile.API.Shared.Constants;
 using BYS.Mobile.API.Shared.Enums;
@@ -18,13 +19,13 @@ namespace BYS.Mobile.API.Business.Implements
 {
     public class ArcustomerBusiness : BusinessBase, IArcustomerBusiness
     {
-        private readonly IArcustomerRepository _arcustomerRepository;
+        private readonly IArcustomerService _arcustomerService;
         public ArcustomerBusiness(ICoreProvider coreProvider
             , IUnitOfWorkService unitOfWorkService
-            , IArcustomerRepository arcustomerRepository
+            , IArcustomerService arcustomerService
             ) : base(coreProvider, unitOfWorkService)
         {
-            _arcustomerRepository = arcustomerRepository;
+            _arcustomerService = arcustomerService;
         }
 
         public async Task<List<CustomerResponse>> GetAllCustomers(string query)
@@ -43,7 +44,7 @@ namespace BYS.Mobile.API.Business.Implements
                     (!string.IsNullOrEmpty(x.ArcustomerName3) &&
                      EF.Functions.Like(x.ArcustomerName3.ToLower(), $"%{normalizedQuery}%"));
 
-                var entities = await _arcustomerRepository
+                var entities = await _arcustomerService
                     .Find(predicate)
                     .AsNoTracking()
                     .ToListAsync();
@@ -74,7 +75,7 @@ namespace BYS.Mobile.API.Business.Implements
                     request.PageSize = Constant.MinPageSizeValue;
                 }
                 var predicate = PredicateBuilder.New<Arcustomer>(p => true);
-                var query = _arcustomerRepository.Find();
+                var query = _arcustomerService.Find();
                 if (!string.IsNullOrEmpty(request.Search))
                 {
                     var searchPattern = $"%{request.Search.ToLower()}%";
@@ -144,9 +145,15 @@ namespace BYS.Mobile.API.Business.Implements
             throw new NotImplementedException();
         }
 
-        public Task<CustomerResponse> Create(CustomerRequest request)
+        public async Task<CustomerResponse> Create(CustomerRequest request)
         {
-            throw new NotImplementedException();
+            var data = _mapper.Map<Arcustomer>(request);
+            await _unitOfWorkService.BeginTransactionAsync();
+            var dataInsert = _arcustomerService.InsertAsync(data);
+            await _unitOfWorkService.SaveChangesAsync();
+            await _unitOfWorkService.CommitAsync();
+            var result = _mapper.Map<CustomerResponse>(data);
+            return result;
         }
     }
 }

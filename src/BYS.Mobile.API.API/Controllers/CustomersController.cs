@@ -20,7 +20,7 @@ namespace BYS.Mobile.API.API.Controllers
         [ProducesResponseType(typeof(FailActionResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAll([FromQuery] string search)
         {
-            return CreateOkForResponse(_business.GetAllCustomers(search));
+            return CreateOkForResponse(await _business.GetAllCustomers(search));
         }
 
         [HttpGet("paging")]
@@ -28,14 +28,14 @@ namespace BYS.Mobile.API.API.Controllers
         [ProducesResponseType(typeof(FailActionResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAllPaging([FromQuery] BaseGetAllRequest request)
         {
-            return CreateOkForResponse(_business.GetAllCustomersPaging(request));
+            return CreateOkForResponse(await _business.GetAllCustomersPaging(request));
         }
         [HttpPost]
         [ProducesResponseType(typeof(ActionResponse<CustomerResponse>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(FailActionResponse), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Create([FromBody] CustomerRequest request)
         {
-            return CreateOkForResponse(_business.Create(request));
+            return CreateOkForResponse(await _business.Create(request));
         }
 
     }

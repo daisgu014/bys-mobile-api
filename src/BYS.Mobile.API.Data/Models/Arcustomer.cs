@@ -8,7 +8,7 @@ namespace BYS.Mobile.API.Data.Models;
 
 [Table("ARCustomers")]
 [Index("ArcustomerNo", "FkBrbranchId", "ArcustomerTypeCombo", Name = "Idx_ARCustomers")]
-public partial class Arcustomer : IIdentity<int>
+public class Arcustomer : IIdentity<int>
 {
     [Key]
     [Column("ARCustomerID")]

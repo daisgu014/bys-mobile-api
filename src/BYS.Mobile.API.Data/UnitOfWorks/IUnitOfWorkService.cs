@@ -15,5 +15,7 @@ namespace BYS.Mobile.API.Data.UnitOfWorks
 
         /// <summary> Rollback (Abort) transaction nếu có lỗi. </summary>
         Task RollbackAsync(CancellationToken cancellationToken = default);
+
+        Task CommitWithTransactionAsync(CancellationToken ct = default);
     }
 }
