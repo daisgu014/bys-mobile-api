@@ -73,15 +73,19 @@ public partial class ArpriceSheet : IIdentity<int>
     [Column("ARPriceSheetStartDate", TypeName = "datetime")]
     public DateTime? ArpriceSheetStartDate { get; set; }
 
+    [Column("ArPriceSheetIsDefault")]
+    public bool? ArPriceSheetIsDefault { get; set; }
+
     [Column("FK_ARCustomerID")]
     public int? FkArcustomerId { get; set; }
 
     [Column("FK_GECurrencyID")]
     public int FkGecurrencyId { get; set; }
 
-    [Column("ARPriceSheetIsDefault")]
-    public bool? ArpriceSheetIsDefault { get; set; }
-
     [InverseProperty("FkArpriceSheet")]
     public virtual ICollection<ArpriceSheetItem> ArpriceSheetItems { get; set; } = new List<ArpriceSheetItem>();
+
+    [ForeignKey("FkArcustomerId")]
+    [InverseProperty("ArpriceSheets")]
+    public virtual Arcustomer FkArcustomer { get; set; }
 }

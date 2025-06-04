@@ -8,7 +8,7 @@ namespace BYS.Mobile.API.Data.Models;
 
 [Table("ARProposals")]
 [Index("ArproposalNo", "ArproposalDate", "FkArcustomerId", "ArproposalTypeCombo", Name = "Idx_ARProposals")]
-public class Arproposal : IIdentity<int>
+public partial class Arproposal : IIdentity<int>
 {
     [Key]
     [Column("ARProposalID")]
@@ -306,4 +306,8 @@ public class Arproposal : IIdentity<int>
 
     [InverseProperty("FkArproposal")]
     public virtual ICollection<ArproposalItem> ArproposalItems { get; set; } = new List<ArproposalItem>();
+
+    [ForeignKey("FkArcustomerId")]
+    [InverseProperty("Arproposals")]
+    public virtual Arcustomer FkArcustomer { get; set; }
 }

@@ -42,8 +42,9 @@ namespace BYS.Mobile.API.Business.Implements
                     (!string.IsNullOrEmpty(x.ArcustomerName2) &&
                      EF.Functions.Like(x.ArcustomerName2.ToLower(), $"%{normalizedQuery}%")) ||
                     (!string.IsNullOrEmpty(x.ArcustomerName3) &&
-                     EF.Functions.Like(x.ArcustomerName3.ToLower(), $"%{normalizedQuery}%"));
-
+                     EF.Functions.Like(x.ArcustomerName3.ToLower(), $"%{normalizedQuery}%")) ||
+                    (!string.IsNullOrEmpty(x.ArcustomerContactPhone) &&
+                     EF.Functions.Like(x.ArcustomerContactPhone.ToLower(), $"%{normalizedQuery}%"));
                 var entities = await _arcustomerService
                     .Find(predicate)
                     .AsNoTracking()
@@ -55,7 +56,7 @@ namespace BYS.Mobile.API.Business.Implements
             catch (Exception e)
             {
                 _coreProvider.LogInformation($"[GET CUSTOMER NO PAGING ERROR]: {e.Message} - {e.StackTrace}");
-                throw new DomainException(ErrorCode.NullReference,$"GET CUSTOMER NO PAGING ERROR: {e.Message}");
+                throw new DomainException(ErrorCode.System,$"GET CUSTOMER NO PAGING ERROR: {e.Message}");
             }
         }
 
@@ -66,14 +67,18 @@ namespace BYS.Mobile.API.Business.Implements
                 if (request == null)
                 {
                     throw new DomainException(ErrorCode.NullReference, "Request can not be null");
-                } if(request.PageIndex < 1)
+                }
+
+                if (request.PageIndex < 1)
                 {
                     request.PageIndex = Constant.MinPageIndexValue;
                 }
-                if(request.PageSize < 1)
+
+                if (request.PageSize < 1)
                 {
                     request.PageSize = Constant.MinPageSizeValue;
                 }
+
                 var predicate = PredicateBuilder.New<Arcustomer>(p => true);
                 var query = _arcustomerService.Find();
                 if (!string.IsNullOrEmpty(request.Search))
@@ -87,9 +92,11 @@ namespace BYS.Mobile.API.Business.Implements
                         (!string.IsNullOrEmpty(p.ArcustomerName2) &&
                          EF.Functions.Like(p.ArcustomerName2.ToLower(), searchPattern)) ||
                         (!string.IsNullOrEmpty(p.ArcustomerName3) &&
-                         EF.Functions.Like(p.ArcustomerName3.ToLower(), searchPattern))
+                         EF.Functions.Like(p.ArcustomerName3.ToLower(), searchPattern)) ||
+                        (!string.IsNullOrEmpty(p.ArcustomerContactPhone) &&
+                         EF.Functions.Like(p.ArcustomerContactPhone.ToLower(), searchPattern))
                     );
-                   
+
                     predicate = predicate.And(filterPredicate);
                 }
 
@@ -110,12 +117,16 @@ namespace BYS.Mobile.API.Business.Implements
                         "arcustomername3" => isAscending
                             ? query.OrderBy(x => x.ArcustomerName3)
                             : query.OrderByDescending(x => x.ArcustomerName3),
-                        _ => isAscending ? query.OrderBy(x => x.AacreatedDate) : query.OrderByDescending(x => x.AacreatedDate)
+                        _ => isAscending
+                            ? query.OrderBy(x => x.AacreatedDate)
+                            : query.OrderByDescending(x => x.AacreatedDate)
                     };
                 }
                 else
                 {
-                    query = (request.Asc ?? false) ? query.OrderBy(x => x.AacreatedDate) : query.OrderByDescending(x => x.AacreatedDate);
+                    query = (request.Asc ?? false)
+                        ? query.OrderBy(x => x.AacreatedDate)
+                        : query.OrderByDescending(x => x.AacreatedDate);
                 }
 
                 query = query.AsNoTracking()
@@ -139,21 +150,26 @@ namespace BYS.Mobile.API.Business.Implements
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                throw new DomainException(ErrorCode.System, $"GET CUSTUMERS ERROR: {e.Message}");
             }
-            throw new NotImplementedException();
         }
 
         public async Task<CustomerResponse> Create(CustomerRequest request)
         {
-            var data = _mapper.Map<Arcustomer>(request);
-            await _unitOfWorkService.BeginTransactionAsync();
-            var dataInsert = _arcustomerService.InsertAsync(data);
-            await _unitOfWorkService.SaveChangesAsync();
-            await _unitOfWorkService.CommitAsync();
-            var result = _mapper.Map<CustomerResponse>(data);
-            return result;
+            try
+            {
+                var data = _mapper.Map<Arcustomer>(request);
+                await _unitOfWorkService.BeginTransactionAsync();
+                var dataInsert = _arcustomerService.InsertAsync(data);
+                await _unitOfWorkService.SaveChangesAsync();
+                await _unitOfWorkService.CommitAsync();
+                var result = _mapper.Map<CustomerResponse>(data);
+                return result;
+            }
+            catch (Exception e)
+            {
+                throw new DomainException(ErrorCode.System,$"CREATE CUSTOMER ERROR: {e.Message}");
+            }
         }
     }
 }

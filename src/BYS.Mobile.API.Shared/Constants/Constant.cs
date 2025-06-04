@@ -67,4 +67,9 @@
             public const string Notify = "notify";
         }
     }
+
+    public class Status
+    {
+        public const string ALIVE = "Alive";
+    }
 }

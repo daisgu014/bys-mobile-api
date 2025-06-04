@@ -12,6 +12,7 @@ public class ApplicationDbContext : DbContext
     {
         _coreProvider = coreProvider;
     }
+
     public virtual DbSet<Arcustomer> Arcustomers { get; set; }
 
     public virtual DbSet<ArpriceSheet> ArpriceSheets { get; set; }
@@ -25,9 +26,16 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<IcmeasureUnit> IcmeasureUnits { get; set; }
 
     public virtual DbSet<Icproduct> Icproducts { get; set; }
+
+    public virtual DbSet<IcproductAttribute> IcproductAttributes { get; set; }
+
+
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+
 
         modelBuilder.Entity<Arcustomer>(entity =>
         {
@@ -35,7 +43,13 @@ public class ApplicationDbContext : DbContext
 
             entity.ToTable("ARCustomers", tb => tb.HasTrigger("TRG_InsertUpdateCustomer"));
         });
-         modelBuilder.Entity<ArpriceSheetItem>(entity =>
+
+        modelBuilder.Entity<ArpriceSheet>(entity =>
+        {
+            entity.HasOne(d => d.FkArcustomer).WithMany(p => p.ArpriceSheets).HasConstraintName("FK_ARPriceSheets_ARCustomers");
+        });
+
+        modelBuilder.Entity<ArpriceSheetItem>(entity =>
         {
             entity.HasOne(d => d.FkArpriceSheet).WithMany(p => p.ArpriceSheetItems).HasConstraintName("FK_ARPriceSheetItems_ARPriceSheets");
 
@@ -47,6 +61,8 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Arproposal>(entity =>
         {
             entity.HasKey(e => e.ArproposalId).HasName("PK_PriceList");
+
+            entity.HasOne(d => d.FkArcustomer).WithMany(p => p.Arproposals).HasConstraintName("FK_ARProposals_ARCustomers");
         });
 
         modelBuilder.Entity<ArproposalItem>(entity =>
@@ -59,6 +75,10 @@ public class ApplicationDbContext : DbContext
 
             entity.HasOne(d => d.FkIcmeasureUnit).WithMany(p => p.ArproposalItems).HasConstraintName("FK_ARProposalItems_ICMeasureUnits");
 
+            entity.HasOne(d => d.FkIcproductAttributeColor).WithMany(p => p.ArproposalItemFkIcproductAttributeColors).HasConstraintName("FK_ARProposalItems_ICProductAttributes2");
+
+            entity.HasOne(d => d.FkIcproductAttributeWoodType).WithMany(p => p.ArproposalItemFkIcproductAttributeWoodTypes).HasConstraintName("FK_ARProposalItems_ICProductAttributes1");
+
             entity.HasOne(d => d.FkIcproduct).WithMany(p => p.ArproposalItemFkIcproducts)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ARProposalItems_ICProducts");
@@ -69,6 +89,24 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Icproduct>(entity =>
         {
             entity.HasKey(e => e.IcproductId).HasName("PK_Item");
+
+            entity.HasOne(d => d.FkArcustomer).WithMany(p => p.Icproducts).HasConstraintName("ICProducts_FK_ARCustomerID");
+
+            entity.HasOne(d => d.FkIcprodAttPackingMaterialSize).WithMany(p => p.IcproductFkIcprodAttPackingMaterialSizes).HasConstraintName("FK_ICProducts_ICProductAttributes5");
+
+            entity.HasOne(d => d.FkIcprodAttPackingMaterialSpeciality).WithMany(p => p.IcproductFkIcprodAttPackingMaterialSpecialities).HasConstraintName("FK_ICProducts_ICProductAttributes4");
+
+            entity.HasOne(d => d.FkIcprodAttPackingMaterialWeightPerVolume).WithMany(p => p.IcproductFkIcprodAttPackingMaterialWeightPerVolumes).HasConstraintName("FK_ICProducts_ICProductAttributes6");
+
+            entity.HasOne(d => d.FkIcproductAttributeColor).WithMany(p => p.IcproductFkIcproductAttributeColors).HasConstraintName("FK_ICProducts_ICProductAttributes2");
+
+            entity.HasOne(d => d.FkIcproductAttributeFinishing).WithMany(p => p.IcproductFkIcproductAttributeFinishings).HasConstraintName("FK_ICProducts_ICProductAttributes3");
+
+            entity.HasOne(d => d.FkIcproductAttributeQuality).WithMany(p => p.IcproductFkIcproductAttributeQualities).HasConstraintName("ICProducts_FK_ICProductAttributeQualityID");
+
+            entity.HasOne(d => d.FkIcproductAttributeSemiProductSpeciality).WithMany(p => p.IcproductFkIcproductAttributeSemiProductSpecialities).HasConstraintName("FK_ICProducts_ICProductAttributes7");
+
+            entity.HasOne(d => d.FkIcproductAttributeWoodType).WithMany(p => p.IcproductFkIcproductAttributeWoodTypes).HasConstraintName("FK_ICProducts_ICProductAttributes1");
 
             entity.HasOne(d => d.FkIcproductBasicUnit).WithMany(p => p.IcproductFkIcproductBasicUnits)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -81,6 +119,13 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(d => d.FkIcproductPurchaseUnit).WithMany(p => p.IcproductFkIcproductPurchaseUnits).HasConstraintName("FK_ICProducts_ICMeasureUnits2");
 
             entity.HasOne(d => d.FkIcproductSaleUnit).WithMany(p => p.IcproductFkIcproductSaleUnits).HasConstraintName("FK_ICProducts_ICMeasureUnits1");
+
+            entity.HasOne(d => d.FkIcproductThickGroup).WithMany(p => p.IcproductFkIcproductThickGroups).HasConstraintName("FK_ICProducts_ICProductAttributes8");
+        });
+
+        modelBuilder.Entity<IcproductAttribute>(entity =>
+        {
+            entity.HasOne(d => d.FkArcustomer).WithMany(p => p.IcproductAttributes).HasConstraintName("FK_ICProductAttributes_ARCustomers");
         });
     }
 }
