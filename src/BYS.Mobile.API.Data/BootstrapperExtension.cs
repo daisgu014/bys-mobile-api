@@ -15,7 +15,9 @@ namespace BYS.Mobile.API.Data
             services.AddScoped<ICoreProvider, CoreProvider>();
             services.AddScoped<IUnitOfWorkService, UnitOfWorkService>();
             services.AddScoped<IArcustomerRepository, ArcustomerRepository>();
-            
+            services.AddScoped<IIcproductRepository, IcproductRepository>();
+            services.AddScoped<IArproposalRepository, ArproposalRepository>();
+            services.AddScoped<IArpriceSheetRepository, ArpriceSheetRepository>();
         }
     }
 }

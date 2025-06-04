@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BYS.Mobile.API.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using IndexAttribute = Microsoft.EntityFrameworkCore.IndexAttribute;
 
@@ -7,11 +8,18 @@ namespace BYS.Mobile.API.Data.Models;
 
 [Table("ARProposals")]
 [Index("ArproposalNo", "ArproposalDate", "FkArcustomerId", "ArproposalTypeCombo", Name = "Idx_ARProposals")]
-public partial class Arproposal
+public class Arproposal : IIdentity<int>
 {
     [Key]
     [Column("ARProposalID")]
+    
     public int ArproposalId { get; set; }
+    [NotMapped]                         
+    public int Id
+    {
+        get => ArproposalId;
+        set => ArproposalId = value;
+    }
 
     [Column("AAStatus")]
     [StringLength(10)]

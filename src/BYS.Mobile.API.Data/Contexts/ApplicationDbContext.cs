@@ -82,7 +82,5 @@ public class ApplicationDbContext : DbContext
 
             entity.HasOne(d => d.FkIcproductSaleUnit).WithMany(p => p.IcproductFkIcproductSaleUnits).HasConstraintName("FK_ICProducts_ICMeasureUnits1");
         });
-      
-
     }
 }

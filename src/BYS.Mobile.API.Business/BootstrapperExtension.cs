@@ -9,6 +9,7 @@ namespace BYS.Mobile.API.Business
         public static void RegisterBusinessDependencies(this IServiceCollection services)
         {
             services.AddScoped<IArcustomerBusiness, ArcustomerBusiness>();
+            services.AddScoped<IIcproductBusiness, IcproductBusiness>();
         }
     }
 }
