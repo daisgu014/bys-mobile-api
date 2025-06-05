@@ -80,6 +80,7 @@ public class IcproductBusiness : BusinessBase, IIcproductBusiness
     {
         try
         {
+            _coreProvider.LogInformation($"{_coreProvider.IdentityProvider.Identity.UserIdentity.Username}");
             if (request == null)
                 throw new DomainException(ErrorCode.NullReference, "Request can not be null");
 

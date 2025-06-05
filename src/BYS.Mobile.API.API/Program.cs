@@ -1,5 +1,4 @@
 using BYS.Mobile.API.API.Extensions;
-using BYS.Mobile.API.API.TokenHandlers;
 using BYS.Mobile.API.Business;
 using BYS.Mobile.API.Data;
 using BYS.Mobile.API.Data.Extensions;
@@ -9,8 +8,8 @@ using BYS.Mobile.API.Shared.Providers.Abstractions;
 using BYS.Mobile.API.Shared.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
-using Serilog;
 using System.Reflection;
+using TokenHandler = BYS.Mobile.API.API.TokenHandlers.TokenHandler;
 
 var builder = WebApplication.CreateBuilder(args);
 var settingPath = builder.SetConfigurationPath();
@@ -42,7 +41,12 @@ builder.Services.AddCors(options =>
         .SetIsOriginAllowed(_ => true);
     });
 });
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(options =>
+
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
+    })
 .AddJwtBearer(options =>
 {
     options.TokenHandlers.Clear();

@@ -5,11 +5,13 @@ using System.Net;
 using BYS.Mobile.API.Shared.Models;
 using BYS.Mobile.API.Shared.Request.Customer;
 using BYS.Mobile.API.Shared.Response;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BYS.Mobile.API.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CustomersController : ControllerBase<IArcustomerBusiness>
     {
         public CustomersController(IArcustomerBusiness business) : base(business)

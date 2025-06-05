@@ -4,11 +4,13 @@ using BYS.Mobile.API.Business.Implements;
 using BYS.Mobile.API.Shared.Models;
 using BYS.Mobile.API.Shared.Models.Commons.Responses;
 using BYS.Mobile.API.Shared.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BYS.Mobile.API.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class ProductsController : ControllerBase<IIcproductBusiness>
 {
     public ProductsController(IIcproductBusiness business) : base(business)
