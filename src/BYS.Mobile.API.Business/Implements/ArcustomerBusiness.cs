@@ -4,10 +4,10 @@ using BYS.Mobile.API.Data.Models;
 using BYS.Mobile.API.Data.Repositories.Abtractions;
 using BYS.Mobile.API.Data.UnitOfWorks;
 using BYS.Mobile.API.Service.Abtractions;
-using BYS.Mobile.API.Share.Request;
 using BYS.Mobile.API.Shared.Constants;
 using BYS.Mobile.API.Shared.Enums;
 using BYS.Mobile.API.Shared.Exceptions;
+using BYS.Mobile.API.Shared.Models;
 using BYS.Mobile.API.Shared.Models.Commons.Responses;
 using BYS.Mobile.API.Shared.Providers.Abstractions;
 using BYS.Mobile.API.Shared.Request.Customer;
@@ -159,17 +159,25 @@ namespace BYS.Mobile.API.Business.Implements
             try
             {
                 var data = _mapper.Map<Arcustomer>(request);
-                await _unitOfWorkService.BeginTransactionAsync();
-                var dataInsert = _arcustomerService.InsertAsync(data);
-                await _unitOfWorkService.SaveChangesAsync();
-                await _unitOfWorkService.CommitAsync();
+
+                await _unitOfWorkService.ExecuteInTransactionAsync(async () =>
+                {
+                    await _arcustomerService.InsertAsync(data);
+                });
+
                 var result = _mapper.Map<CustomerResponse>(data);
                 return result;
             }
             catch (Exception e)
             {
-                throw new DomainException(ErrorCode.System,$"CREATE CUSTOMER ERROR: {e.Message}");
+                // Ghi rõ lỗi nội tại
+                Console.WriteLine(e.ToString()); // hoặc log bằng logger
+                if (e.InnerException != null)
+                    Console.WriteLine("Inner: " + e.InnerException.Message);
+                _coreProvider.LogInformation("Inner: " + e.InnerException.Message);
+                throw; // đừng bọc để xem lỗi thực tế là gì
             }
         }
+
     }
 }

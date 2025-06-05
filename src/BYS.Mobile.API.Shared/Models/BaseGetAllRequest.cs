@@ -1,7 +1,7 @@
 ﻿using BYS.Mobile.API.Shared.Constants;
 using System.ComponentModel;
 
-namespace BYS.Mobile.API.Share.Request
+namespace BYS.Mobile.API.Shared.Models
 {
     public class BaseGetAllRequest
     {

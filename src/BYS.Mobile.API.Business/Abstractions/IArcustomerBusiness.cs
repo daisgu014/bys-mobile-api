@@ -1,4 +1,4 @@
-﻿using BYS.Mobile.API.Share.Request;
+﻿using BYS.Mobile.API.Shared.Models;
 using BYS.Mobile.API.Shared.Models.Commons.Responses;
 using BYS.Mobile.API.Shared.Request.Customer;
 using BYS.Mobile.API.Shared.Response;

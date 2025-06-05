@@ -1,52 +1,71 @@
 ﻿using BYS.Mobile.API.Data.Contexts;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace BYS.Mobile.API.Data.UnitOfWorks;
 
 /// <summary>
-/// Đơn vị giao dịch (Unit-of-Work) gộp cả SQL Server (EF Core)
-/// và MongoDB (nếu còn dùng). Hỗ trợ Begin / Commit / Rollback
-/// cho SQL, kèm SaveChangesAsync.
+/// Đơn vị giao dịch (Unit-of-Work) hỗ trợ SQL Server (EF Core)
+/// Bao gồm Begin, Commit, Rollback, SaveChangesAsync.
+/// Với SqlServerRetryingExecutionStrategy tích hợp sẵn.
 /// </summary>
 public sealed class UnitOfWorkService : IUnitOfWorkService, IAsyncDisposable
 {
     private readonly ApplicationDbContext _dbContext;
-    private IDbContextTransaction?        _sqlTx;
+    private IDbContextTransaction? _sqlTx;
 
-    public UnitOfWorkService(ApplicationDbContext dbContext) 
+    public UnitOfWorkService(ApplicationDbContext dbContext)
     {
-        _dbContext   = dbContext;
-    }
-
-    public async Task BeginTransactionAsync(CancellationToken ct = default)
-    {
-        if (_sqlTx is null)
-            _sqlTx = await _dbContext.Database.BeginTransactionAsync(ct);
+        _dbContext = dbContext;
     }
 
     public Task<int> SaveChangesAsync(CancellationToken ct = default) =>
         _dbContext.SaveChangesAsync(ct);
 
-    public Task CommitAsync(CancellationToken ct = default) =>
-        _sqlTx is null
-            ? _dbContext.SaveChangesAsync(ct)            // auto-commit mode
-            : CommitWithTransactionAsync(ct);
-
-    public async Task CommitWithTransactionAsync(CancellationToken ct = default)
+    public async Task ExecuteInTransactionAsync(Func<Task> action, CancellationToken ct = default)
     {
-        await _dbContext.SaveChangesAsync(ct);
-        await _sqlTx!.CommitAsync(ct);
-        await _sqlTx.DisposeAsync();
-        _sqlTx = null;
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
+
+            try
+            {
+                await action();
+                await _dbContext.SaveChangesAsync(ct);
+
+                await transaction.CommitAsync(ct);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(ct);
+                throw;
+            }
+        });
     }
 
-    public async Task RollbackAsync(CancellationToken ct = default)
+    // Optional for simple use cases
+    public async Task<int> ExecuteInTransactionAsync(Func<Task<int>> func, CancellationToken ct = default)
     {
-        if (_sqlTx is null) return;
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
 
-        await _sqlTx.RollbackAsync(ct);
-        await _sqlTx.DisposeAsync();
-        _sqlTx = null;
+        return await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
+
+            try
+            {
+                var result = await func();
+                await transaction.CommitAsync(ct);
+                return result;
+            }
+            catch
+            {
+                await transaction.RollbackAsync(ct);
+                throw;
+            }
+        });
     }
 
     public async ValueTask DisposeAsync()
@@ -56,5 +75,4 @@ public sealed class UnitOfWorkService : IUnitOfWorkService, IAsyncDisposable
 
         await _dbContext.DisposeAsync();
     }
-    
 }

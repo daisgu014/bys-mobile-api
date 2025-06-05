@@ -1,5 +1,6 @@
 using AutoMapper;
 using BYS.Mobile.API.Data.Models;
+using BYS.Mobile.API.Shared.Constants;
 using BYS.Mobile.API.Shared.Request.Customer;
 using BYS.Mobile.API.Shared.Response;
 
@@ -11,8 +12,7 @@ public class ArcustomerProfile : Profile
     {
         CreateMap<CustomerRequest, Arcustomer>()
             .ForMember(dest => dest.ArcustomerContactAddressLine1, opt => opt.MapFrom(src => src.Address))
-            .ForMember(dest => dest.ArcustomerContactAddressLine2, opt => opt.MapFrom(src => src.Address));           
-        
+            .ForMember(dest => dest.Aastatus, opt => opt.MapFrom(src=>Status.ALIVE));
         CreateMap<Arcustomer, CustomerResponse>();
     }
 }

@@ -1,7 +1,7 @@
 using System.Net;
 using BYS.Mobile.API.Business.Abstractions;
 using BYS.Mobile.API.Business.Implements;
-using BYS.Mobile.API.Share.Request;
+using BYS.Mobile.API.Shared.Models;
 using BYS.Mobile.API.Shared.Models.Commons.Responses;
 using BYS.Mobile.API.Shared.Response;
 using Microsoft.AspNetCore.Mvc;
