@@ -28,7 +28,13 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Icproduct> Icproducts { get; set; }
 
     public virtual DbSet<IcproductAttribute> IcproductAttributes { get; set; }
+    public virtual DbSet<Aduser> Adusers { get; set; }
 
+    public virtual DbSet<AduserGroup> AduserGroups { get; set; }
+
+    public virtual DbSet<Hremployee> Hremployees { get; set; }
+
+     public virtual DbSet<Genumbering> Genumberings { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -126,6 +132,32 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<IcproductAttribute>(entity =>
         {
             entity.HasOne(d => d.FkArcustomer).WithMany(p => p.IcproductAttributes).HasConstraintName("FK_ICProductAttributes_ARCustomers");
+        });
+        modelBuilder.Entity<Aduser>(entity =>
+        {
+            entity.HasKey(e => e.AduserId).HasName("PK_User");
+
+            entity.HasOne(d => d.AduserGroup).WithMany(p => p.Adusers)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ADUsers_ADUserGroups");
+
+            entity.HasOne(d => d.FkHremployee).WithMany(p => p.Adusers).HasConstraintName("FK_ADUsers_HREmployees");
+        });
+
+        modelBuilder.Entity<AduserGroup>(entity =>
+        {
+            entity.HasKey(e => e.AduserGroupId).HasName("PK_UserGroup");
+        });
+
+        modelBuilder.Entity<Hremployee>(entity =>
+        {
+            entity.ToTable("HREmployees", tb => tb.HasTrigger("TRG_InsertUpdateEmployee"));
+        });
+        modelBuilder.Entity<Genumbering>(entity =>
+        {
+            entity.Property(e => e.GenumberingDesc)
+                .HasDefaultValueSql("((0))")
+                .HasComment("0:Auto\r\n1:Manual");
         });
     }
 }

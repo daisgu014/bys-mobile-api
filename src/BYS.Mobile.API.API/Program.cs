@@ -49,24 +49,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     options.TokenHandlers.Add(new TokenHandler());
     options.Events = new JwtBearerEvents
     {
-        OnMessageReceived = context =>
-        {
-            var token = string.Empty;
-
-            if (context.Request.Query.ContainsKey("access_token"))
-            {
-                token = context.Request.Query["access_token"];
-            }
-            
-            var path = context.HttpContext.Request.Path;
-
-            if (!string.IsNullOrWhiteSpace(token) && path.StartsWithSegments("/chat"))
-            {
-                context.Token = token;
-            }
-
-            return Task.CompletedTask;
-        },
         OnTokenValidated = ctx =>
         {
             if (ctx.Principal.Identity.IsAuthenticated)

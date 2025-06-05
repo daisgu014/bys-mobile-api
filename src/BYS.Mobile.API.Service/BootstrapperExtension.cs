@@ -11,6 +11,7 @@ namespace BYS.Mobile.API.Service
            services.AddScoped<IArcustomerService, ArcustomerService>();
            services.AddScoped<IArproposalService, ArproposalService>();
            services.AddScoped<IIcproductService, IcproductService>();
+           services.AddScoped<IAduserService, AduserService>();
         }
     }
 }
