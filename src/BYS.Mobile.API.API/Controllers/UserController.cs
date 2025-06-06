@@ -20,5 +20,12 @@ public class UserController : ControllerBase<IAduserBusiness>
     {
         return CreateOkForResponse(await _business.LoginAsync(request));
     }
-
+    
+    [HttpPost("refresh-token")]
+    [ProducesResponseType(typeof(ActionResponse<LoginResponse>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(FailActionResponse), (int)HttpStatusCode.BadRequest)]
+    public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+    {
+        return CreateOkForResponse(await _business.RefreshTokenAsync(refreshToken));
+    }
 }

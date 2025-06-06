@@ -6,4 +6,5 @@ namespace BYS.Mobile.API.Business.Abstractions;
 public interface IAduserBusiness : IBusiness
 {
     Task<LoginResponse> LoginAsync(LoginRequest loginRequest);
+    Task<LoginResponse> RefreshTokenAsync(string refreshToken);
 }

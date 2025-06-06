@@ -8,6 +8,7 @@ using BYS.Mobile.API.Shared.Providers.Abstractions;
 using BYS.Mobile.API.Shared.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Reflection;
 using TokenHandler = BYS.Mobile.API.API.TokenHandlers.TokenHandler;
 
@@ -98,7 +99,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 var app = builder.Build();
-//app.ConfigGlobalException();
+app.ConfigGlobalException();
 
 if (!setting.Auth.IsProdEnv)
 {

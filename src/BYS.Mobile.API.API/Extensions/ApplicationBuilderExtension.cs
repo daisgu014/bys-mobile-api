@@ -1,7 +1,9 @@
 ﻿using BYS.Mobile.API.Shared.Enums;
 using BYS.Mobile.API.Shared.Exceptions;
 using BYS.Mobile.API.Shared.Models.Commons.Responses;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Net;
@@ -10,29 +12,35 @@ namespace BYS.Mobile.API.API.Extensions
 {
     public static class ApplicationBuilderExtension
     {
-        private static DefaultContractResolver _contractResolver = new DefaultContractResolver()
+        private static readonly DefaultContractResolver _contractResolver = new DefaultContractResolver()
         {
             NamingStrategy = new CamelCaseNamingStrategy()
         };
 
-        public static void ConfigGlobalException<TApplicationBuilder>(this TApplicationBuilder applicationBuilder) where TApplicationBuilder : IApplicationBuilder
+        public static void ConfigGlobalException<TApplicationBuilder>(this TApplicationBuilder applicationBuilder)
+            where TApplicationBuilder : IApplicationBuilder
         {
             applicationBuilder.UseExceptionHandler(config =>
             {
-                config.Run(async handler =>
+                config.Run(async context =>
                 {
-                    if (((int)HttpStatusCode.InternalServerError).Equals(handler.Response.StatusCode))
-                    {
-                        handler.Response.ContentType = System.Net.Mime.MediaTypeNames.Application.Json;
-                        var contextFeature = handler.Features.Get<IExceptionHandlerFeature>();
-                        var httpStatusCode = (int)HttpStatusCode.BadRequest;
-                        object response = null;
+                    // Luôn set content type là JSON
+                    context.Response.ContentType = "application/json";
 
-                        if (contextFeature.Error is DomainException domainException)
+                    // Lấy thông tin exception
+                    var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+                    if (contextFeature?.Error != null)
+                    {
+                        var ex = contextFeature.Error;
+                        object responseObj;
+                        int httpStatusCode = (int)HttpStatusCode.BadRequest;
+
+                        // Nếu là DomainException (có thể lồng thêm IResultException)
+                        if (ex is DomainException domainException)
                         {
                             if (domainException is IResultException resultException)
                             {
-                                response = new FailActionResponse<object>()
+                                responseObj = new FailActionResponse<object>()
                                 {
                                     Data = resultException.Result,
                                     ErrorCode = (int)domainException.ErrorCode,
@@ -43,7 +51,7 @@ namespace BYS.Mobile.API.API.Extensions
                             }
                             else
                             {
-                                response = new FailActionResponse()
+                                responseObj = new FailActionResponse()
                                 {
                                     ErrorCode = (int)domainException.ErrorCode,
                                     ErrorCodeString = domainException.ErrorCode.ToString(),
@@ -53,25 +61,28 @@ namespace BYS.Mobile.API.API.Extensions
                                 };
                             }
                         }
-                        else if (contextFeature.Error is not null)
+                        else
                         {
-                            response = new FailActionResponse()
+                            // Tất cả lỗi khác (hệ thống, null reference, v.v.)
+                            responseObj = new FailActionResponse()
                             {
                                 ErrorCode = (int)ErrorCode.System,
                                 ErrorCodeString = ErrorCode.System.ToString(),
-                                ErrorMessage = contextFeature.Error.Message
+                                ErrorMessage = ex.Message
                             };
                         }
 
-                        if (response is not null)
+                        // Chuyển StatusCode về BadRequest (400) hoặc có thể tùy chỉnh theo kiểu exception
+                        context.Response.StatusCode = httpStatusCode;
+
+                        // Viết JSON ra response
+                        var json = JsonConvert.SerializeObject(responseObj, new JsonSerializerSettings
                         {
-                            handler.Response.StatusCode = httpStatusCode;
-                            await handler.Response.WriteAsync(JsonConvert.SerializeObject(response, new JsonSerializerSettings()
-                            {
-                                Formatting = Formatting.None,
-                                ContractResolver = _contractResolver
-                            }));
-                        }
+                            ContractResolver = _contractResolver,
+                            Formatting = Formatting.None
+                        });
+
+                        await context.Response.WriteAsync(json);
                     }
                 });
             });

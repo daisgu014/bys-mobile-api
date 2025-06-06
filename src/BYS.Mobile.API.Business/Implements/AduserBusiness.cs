@@ -38,14 +38,16 @@ public class AduserBusiness : BusinessBase, IAduserBusiness
         }
 
         var tokenString = GenerateToken(user);
-
+        var refreshToken = GenerateRefreshToken(user);
         var expiresAt = DateTime.UtcNow.AddDays(_coreProvider.Setting.Auth.ExpiryTimeInDays);
 
         return new LoginResponse
         {
-            AccessToken = tokenString,
-            ExpiresAt   = expiresAt
+            AccessToken  = tokenString,
+            RefreshToken = refreshToken,
+            ExpiresAt    = expiresAt
         };
+
     }
     private async Task<Aduser> ValidateUserAsync(string username, string password)
     {
@@ -98,4 +100,67 @@ public class AduserBusiness : BusinessBase, IAduserBusiness
         // 5. Chuyển thành string
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+    private string GenerateRefreshToken(Aduser user)
+    {
+        var issuedAtTicks = DateTime.UtcNow.Ticks;
+        var payload = $"{user.AduserId}|{issuedAtTicks}";
+        var keyBytes = Encoding.UTF8.GetBytes(_coreProvider.Setting.Auth.SecretKey);
+
+        using var hmac = new HMACSHA256(keyBytes);
+        var hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
+        var hashBase64 = Convert.ToBase64String(hashBytes);
+
+        var token = $"{user.AduserId}|{issuedAtTicks}|{hashBase64}";
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes(token)); // <-- encode toàn bộ
+    }
+
+    public async Task<LoginResponse> RefreshTokenAsync(string refreshToken)
+    {
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            throw new UnauthorizedAccessException("Refresh token không hợp lệ");
+
+        string decoded;
+        try
+        {
+            decoded = Encoding.UTF8.GetString(Convert.FromBase64String(refreshToken));
+        }
+        catch
+        {
+            throw new UnauthorizedAccessException("Refresh token sai định dạng");
+        }
+
+        var parts = decoded.Split('|');
+        if (parts.Length != 3)
+            throw new UnauthorizedAccessException("Cấu trúc token không hợp lệ");
+
+        if (!int.TryParse(parts[0], out var userId) || !long.TryParse(parts[1], out var ticks))
+            throw new UnauthorizedAccessException("Dữ liệu token không hợp lệ");
+
+        var signature = parts[2];
+        var issuedAt = new DateTime(ticks, DateTimeKind.Utc);
+        var expireTime = issuedAt.AddDays(_coreProvider.Setting.Auth.RefreshTokenExpiryInDays);
+        if (DateTime.UtcNow > expireTime)
+            throw new UnauthorizedAccessException("Refresh token đã hết hạn");
+
+        var user = await _userService.FirstOrDefaultAsync(x => x.AduserId == userId);
+        if (user == null)
+            throw new UnauthorizedAccessException("Không tìm thấy user");
+
+        // Tạo lại HMAC
+        var payload = $"{user.AduserId}|{ticks}";
+        var keyBytes = Encoding.UTF8.GetBytes(_coreProvider.Setting.Auth.SecretKey);
+        using var hmac = new HMACSHA256(keyBytes);
+        var expectedSig = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(payload)));
+
+        if (!string.Equals(signature, expectedSig))
+            throw new UnauthorizedAccessException("Refresh token không hợp lệ hoặc đã bị thay đổi");
+
+        return new LoginResponse
+        {
+            AccessToken = GenerateToken(user),
+            RefreshToken = GenerateRefreshToken(user),
+            ExpiresAt = DateTime.UtcNow.AddDays(_coreProvider.Setting.Auth.ExpiryTimeInDays)
+        };
+    }
+
 }

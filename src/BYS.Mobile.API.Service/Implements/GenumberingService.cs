@@ -7,7 +7,7 @@ namespace BYS.Mobile.API.Service.Implements;
 
 public class GenumberingService : ServiceBase<Genumbering, int>, IGenumberingService
 {
-    public GenumberingService(IRepository<Genumbering, int> repository, ICoreProvider coreProvider) : base(repository, coreProvider)
+    public GenumberingService(IGenumberingRepository repository, ICoreProvider coreProvider) : base(repository, coreProvider)
     {
     }
 }

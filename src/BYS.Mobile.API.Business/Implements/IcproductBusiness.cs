@@ -32,12 +32,15 @@ public class IcproductBusiness : BusinessBase, IIcproductBusiness
             var normalizedQuery = search?.Trim().ToLower() ?? string.Empty;
 
             Expression<Func<Icproduct, bool>> predicate = x =>
-                EF.Functions.Like(x.Aastatus.ToLower(), Status.ALIVE.ToLower())&&(
+                EF.Functions.Like(x.Aastatus.ToLower(), Status.ALIVE.ToLower())
+                &&
+                (x.ArpriceSheetItems.Count > 0 && x.ArpriceSheetItems.Any(item => item.FkArpriceSheet != null && item.FkArpriceSheet.ArPriceSheetIsDefault ==true))
+                &&(
                 (!string.IsNullOrEmpty(x.IcproductName) &&
                  EF.Functions.Like(x.IcproductName.ToLower(), $"%{normalizedQuery}%")) ||
                 (!string.IsNullOrEmpty(x.IcproductNoOfOldSys) &&
                  EF.Functions.Like(x.IcproductNoOfOldSys.ToLower(), $"%{normalizedQuery}%")));
-
+            
             var entities = await _icproductService
                 .Find(predicate)
                 .Include(p => p.FkIcproductAttributeWoodType)
@@ -100,12 +103,14 @@ public class IcproductBusiness : BusinessBase, IIcproductBusiness
                 var searchPattern = $"%{request.Search.Trim().ToLower()}%";
                 var filterPredicate = PredicateBuilder.New<Icproduct>(p =>
                     EF.Functions.Like(p.Aastatus.ToLower(), Status.ALIVE.ToLower())
+                    &&
+                    (p.ArpriceSheetItems.Count > 0 && p.ArpriceSheetItems.Any(item => item.FkArpriceSheet != null && item.FkArpriceSheet.ArPriceSheetIsDefault == true))
                     && (
-                        (!string.IsNullOrEmpty(p.IcproductName) &&
-                         EF.Functions.Like(p.IcproductName.ToLower(), searchPattern))
-                        ||
-                        (!string.IsNullOrEmpty(p.IcproductNoOfOldSys) &&
-                         EF.Functions.Like(p.IcproductNoOfOldSys.ToLower(), searchPattern))
+                    (!string.IsNullOrEmpty(p.IcproductName) &&
+                    EF.Functions.Like(p.IcproductName.ToLower(), searchPattern))
+                    ||
+                    (!string.IsNullOrEmpty(p.IcproductNoOfOldSys) &&
+                    EF.Functions.Like(p.IcproductNoOfOldSys.ToLower(), searchPattern))
                     )
                 );
                 predicate = predicate.And(filterPredicate);

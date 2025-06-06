@@ -25,7 +25,9 @@ public class ProductResponse
     /// <summary>
     /// Kích thước (mm)
     /// </summary>
-    public string SizeMm { get; set; }
+    public decimal? IcproductLength { get; set; }
+    public decimal? IcproductWidth { get; set; }
+    public decimal? IcproductHeight { get; set; }
 
     /// <summary>
     /// SOQ (pcs/sets)

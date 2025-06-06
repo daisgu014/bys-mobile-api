@@ -4,20 +4,20 @@
     {
         public static string SetConfigurationPath(this WebApplicationBuilder builder)
         {
-            var basePath = Environment.GetEnvironmentVariable("BASE_PATH");
-#if DEBUG
-            if (string.IsNullOrWhiteSpace(basePath))
-            {
-                basePath = Directory.GetCurrentDirectory();
-            }
-#endif
-            var appSetting = Environment.GetEnvironmentVariable("APP_SETTING");
-#if DEBUG
-            if (string.IsNullOrWhiteSpace(appSetting))
-            {
-                appSetting = "appsettings.json";
-            }
-#endif
+            var basePath = Directory.GetCurrentDirectory();
+//#if DEBUG
+//            if (string.IsNullOrWhiteSpace(basePath))
+//            {
+//                basePath = Directory.GetCurrentDirectory();
+//            }
+//#endif
+            var appSetting = "appsettings.json";
+//#if DEBUG
+//            if (string.IsNullOrWhiteSpace(appSetting))
+//            {
+//                appSetting = "appsettings.json";
+//            }
+//#endif
             var settingPath = string.IsNullOrWhiteSpace(basePath)
                 ? appSetting : Path.Combine(basePath, appSetting);
             builder.Configuration.SetBasePath(basePath)
