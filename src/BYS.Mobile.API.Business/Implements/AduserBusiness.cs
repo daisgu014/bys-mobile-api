@@ -74,7 +74,7 @@ public class AduserBusiness : BusinessBase, IAduserBusiness
             new Claim(JwtRegisteredClaimNames.Sub, user.AduserName),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim("id", user.AduserId.ToString()),
-            new Claim("HremployeeId", user.FkHremployeeId.ToString()),
+            new Claim("hr_employee_id", user.FkHremployeeId.ToString()),
             new Claim("username", user.AduserName.ToString())
         };
 

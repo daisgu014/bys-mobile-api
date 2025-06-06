@@ -17,9 +17,11 @@ namespace BYS.Mobile.API.Shared.Providers.Implements
         public string LastName { get; set; }
 
         [JsonProperty("username")]
-        public object Username { get; set; }
+        public string Username { get; set; }
 
         [JsonProperty("device_id")]
         public string DeviceId { get; set; }
+        [JsonProperty("hr_employee_id")]
+        public string HrEmployeeId { get; set; }
     }
 }

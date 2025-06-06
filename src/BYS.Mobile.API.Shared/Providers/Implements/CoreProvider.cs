@@ -34,29 +34,29 @@ namespace BYS.Mobile.API.Shared.Providers.Implements
 #endif
         }
 
-        public virtual IEnumerable<IDataPolicy> CreatePolicies<T, TKey>()
-        {
-            var entityType = typeof(T);
-            var keyType = typeof(TKey);
-            var policies = new List<IDataPolicy>();
-
-            if (typeof(IBaseActionEntity<TKey>).IsAssignableFrom(entityType))
-            {
-                policies.Add(Activator.CreateInstance(typeof(BaseActionEntityPolicy<,>).MakeGenericType(entityType, keyType)) as IDataPolicy);
-            }
-
-            if (typeof(IIdentity<string>).IsAssignableFrom(entityType))
-            {
-                policies.Add(Activator.CreateInstance(typeof(StringIdentityPolicy<>).MakeGenericType(entityType)) as IDataPolicy);
-            }
-
-            if (typeof(IBaseEntity<TKey>).IsAssignableFrom(entityType))
-            {
-                policies.Add(Activator.CreateInstance(typeof(BaseEntityPolicy<,>).MakeGenericType(entityType, keyType)) as IDataPolicy);
-            }
-
-            return policies;
-        }
+        // public virtual IEnumerable<IDataPolicy> CreatePolicies<T, TKey>()
+        // {
+        //     var entityType = typeof(T);
+        //     var keyType = typeof(TKey);
+        //     var policies = new List<IDataPolicy>();
+        //
+        //     if (typeof(IBaseActionEntity<TKey>).IsAssignableFrom(entityType))
+        //     {
+        //         policies.Add(Activator.CreateInstance(typeof(BaseActionEntityPolicy<,>).MakeGenericType(entityType, keyType)) as IDataPolicy);
+        //     }
+        //
+        //     if (typeof(IIdentity<string>).IsAssignableFrom(entityType))
+        //     {
+        //         policies.Add(Activator.CreateInstance(typeof(StringIdentityPolicy<>).MakeGenericType(entityType)) as IDataPolicy);
+        //     }
+        //
+        //     if (typeof(IBaseEntity<TKey>).IsAssignableFrom(entityType))
+        //     {
+        //         policies.Add(Activator.CreateInstance(typeof(BaseEntityPolicy<,>).MakeGenericType(entityType, keyType)) as IDataPolicy);
+        //     }
+        //
+        //     return policies;
+        // }
         public void LogInformation(string message, object data = null, [CallerMemberName] string methodName = null, [CallerFilePath] string filePath = null, [CallerLineNumber] int lineNumber = 0)
         {
             var logInfo = new List<string>()

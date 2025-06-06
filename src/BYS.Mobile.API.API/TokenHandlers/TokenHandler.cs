@@ -20,6 +20,8 @@ namespace BYS.Mobile.API.API.TokenHandlers
                 IssuerSigningKey = new SymmetricSecurityKey(
                     Encoding.UTF8.GetBytes(BysMobileAPISetting.Instance.Auth.SecretKey.Trim())
                 ),
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero 
             };
 
             var result = await tokenHandler.ValidateTokenAsync(token, validationParameters);

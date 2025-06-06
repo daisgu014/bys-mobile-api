@@ -15,7 +15,7 @@ namespace BYS.Mobile.API.Shared.Providers.Abstractions
         ILogger Logger { get; set; }
 #endif
 
-        IEnumerable<IDataPolicy> CreatePolicies<T, TKey>();
+       // IEnumerable<IDataPolicy> CreatePolicies<T, TKey>();
         void LogInformation(string message, object data = null, [CallerMemberName] string methodName = null, [CallerFilePath] string filePath = null, [CallerLineNumber] int lineNumber = 0);
     }
 }

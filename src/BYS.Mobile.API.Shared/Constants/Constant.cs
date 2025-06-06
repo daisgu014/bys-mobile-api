@@ -72,4 +72,10 @@
     {
         public const string ALIVE = "Alive";
     }
+
+    public class GENumbering
+    {
+        public const string CUSTOMER = "Customer";
+        public const string PROPOSAL = "Proposal";
+    }
 }
