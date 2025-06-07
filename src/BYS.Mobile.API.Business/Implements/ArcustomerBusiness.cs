@@ -96,17 +96,24 @@ namespace BYS.Mobile.API.Business.Implements
             {
                 var normalizedQuery = query?.Trim().ToLower() ?? string.Empty;
 
+                // 1. Điều kiện mặc định: Alive
                 Expression<Func<Arcustomer, bool>> predicate = x =>
-                    (!string.IsNullOrEmpty(x.ArcustomerName) &&
-                     EF.Functions.Like(x.ArcustomerName.ToLower(), $"%{normalizedQuery}%")) ||
-                    (!string.IsNullOrEmpty(x.ArcustomerName1) &&
-                     EF.Functions.Like(x.ArcustomerName1.ToLower(), $"%{normalizedQuery}%")) ||
-                    (!string.IsNullOrEmpty(x.ArcustomerName2) &&
-                     EF.Functions.Like(x.ArcustomerName2.ToLower(), $"%{normalizedQuery}%")) ||
-                    (!string.IsNullOrEmpty(x.ArcustomerName3) &&
-                     EF.Functions.Like(x.ArcustomerName3.ToLower(), $"%{normalizedQuery}%")) ||
-                    (!string.IsNullOrEmpty(x.ArcustomerContactPhone) &&
-                     EF.Functions.Like(x.ArcustomerContactPhone.ToLower(), $"%{normalizedQuery}%"));
+                    EF.Functions.Like(x.Aastatus.ToLower(), Status.ALIVE.ToLower());
+
+                // 2. Nếu có từ khóa tìm kiếm, thêm vào predicate
+                if (!string.IsNullOrWhiteSpace(normalizedQuery))
+                {
+                    Expression<Func<Arcustomer, bool>> searchPredicate = x =>
+                        EF.Functions.Like(x.ArcustomerName.ToLower(), $"%{normalizedQuery}%") ||
+                        EF.Functions.Like(x.ArcustomerName1.ToLower(), $"%{normalizedQuery}%") ||
+                        EF.Functions.Like(x.ArcustomerName2.ToLower(), $"%{normalizedQuery}%") ||
+                        EF.Functions.Like(x.ArcustomerName3.ToLower(), $"%{normalizedQuery}%") ||
+                        EF.Functions.Like(x.ArcustomerContactPhone.ToLower(), $"%{normalizedQuery}%");
+
+                    predicate = predicate.And(searchPredicate);
+                }
+
+                // 3. Truy vấn DB
                 var entities = await _arcustomerService
                     .Find(predicate)
                     .AsNoTracking()
@@ -118,70 +125,55 @@ namespace BYS.Mobile.API.Business.Implements
             catch (Exception e)
             {
                 _coreProvider.LogInformation($"[GET CUSTOMER NO PAGING ERROR]: {e.Message} - {e.StackTrace}");
-                throw new DomainException(ErrorCode.System,$"GET CUSTOMER NO PAGING ERROR: {e.Message}");
+                throw new DomainException(ErrorCode.System, $"GET CUSTOMER NO PAGING ERROR: {e.Message}");
             }
         }
+
 
         public async Task<PagedResult<CustomerResponse>> GetAllCustomersPaging(BaseGetAllRequest request)
         {
             try
             {
                 if (request == null)
-                {
                     throw new DomainException(ErrorCode.NullReference, "Request can not be null");
-                }
 
-                if (request.PageIndex < 1)
-                {
-                    request.PageIndex = Constant.MinPageIndexValue;
-                }
+                request.PageIndex = Math.Max(Constant.MinPageIndexValue, request.PageIndex);
+                request.PageSize = Math.Clamp(request.PageSize, Constant.MinPageSizeValue, Constant.MaxPageSizeValue);
 
-                if (request.PageSize < 1)
-                {
-                    request.PageSize = Constant.MinPageSizeValue;
-                }
+                // 1. Predicate mặc định: chỉ lấy khách hàng Alive
+                var predicate = PredicateBuilder.New<Arcustomer>(x =>
+                    EF.Functions.Like(x.Aastatus.ToLower(), Status.ALIVE.ToLower())
+                );
 
-                var predicate = PredicateBuilder.New<Arcustomer>(p => true);
-                var query = _arcustomerService.Find();
-                if (!string.IsNullOrEmpty(request.Search))
+                // 2. Nếu có Search thì thêm điều kiện tìm kiếm
+                if (!string.IsNullOrWhiteSpace(request.Search))
                 {
-                    var searchPattern = $"%{request.Search.ToLower()}%";
-                    var filterPredicate = PredicateBuilder.New<Arcustomer>(p =>
-                        (!string.IsNullOrEmpty(p.ArcustomerName) &&
-                         EF.Functions.Like(p.ArcustomerName.ToLower(), searchPattern)) ||
-                        (!string.IsNullOrEmpty(p.ArcustomerName1) &&
-                         EF.Functions.Like(p.ArcustomerName1.ToLower(), searchPattern)) ||
-                        (!string.IsNullOrEmpty(p.ArcustomerName2) &&
-                         EF.Functions.Like(p.ArcustomerName2.ToLower(), searchPattern)) ||
-                        (!string.IsNullOrEmpty(p.ArcustomerName3) &&
-                         EF.Functions.Like(p.ArcustomerName3.ToLower(), searchPattern)) ||
-                        (!string.IsNullOrEmpty(p.ArcustomerContactPhone) &&
-                         EF.Functions.Like(p.ArcustomerContactPhone.ToLower(), searchPattern))
+                    var searchPattern = $"%{request.Search.Trim().ToLower()}%";
+
+                    var searchPredicate = PredicateBuilder.New<Arcustomer>(p =>
+                        EF.Functions.Like(p.ArcustomerName.ToLower(), searchPattern) ||
+                        EF.Functions.Like(p.ArcustomerName1.ToLower(), searchPattern) ||
+                        EF.Functions.Like(p.ArcustomerName2.ToLower(), searchPattern) ||
+                        EF.Functions.Like(p.ArcustomerName3.ToLower(), searchPattern) ||
+                        EF.Functions.Like(p.ArcustomerContactPhone.ToLower(), searchPattern)
                     );
 
-                    predicate = predicate.And(filterPredicate);
+                    predicate = predicate.And(searchPredicate);
                 }
+
+                // 3. Sorting
+                var query = _arcustomerService.Find();
 
                 if (!string.IsNullOrEmpty(request.SortField))
                 {
                     bool isAscending = request.Asc ?? true;
                     query = request.SortField.ToLower() switch
                     {
-                        "arcustomername" => isAscending
-                            ? query.OrderBy(x => x.ArcustomerName)
-                            : query.OrderByDescending(x => x.ArcustomerName),
-                        "arcustomername1" => isAscending
-                            ? query.OrderBy(x => x.ArcustomerName1)
-                            : query.OrderByDescending(x => x.ArcustomerName1),
-                        "arcustomername2" => isAscending
-                            ? query.OrderBy(x => x.ArcustomerName2)
-                            : query.OrderByDescending(x => x.ArcustomerName2),
-                        "arcustomername3" => isAscending
-                            ? query.OrderBy(x => x.ArcustomerName3)
-                            : query.OrderByDescending(x => x.ArcustomerName3),
-                        _ => isAscending
-                            ? query.OrderBy(x => x.AacreatedDate)
-                            : query.OrderByDescending(x => x.AacreatedDate)
+                        "arcustomername" => isAscending ? query.OrderBy(x => x.ArcustomerName) : query.OrderByDescending(x => x.ArcustomerName),
+                        "arcustomername1" => isAscending ? query.OrderBy(x => x.ArcustomerName1) : query.OrderByDescending(x => x.ArcustomerName1),
+                        "arcustomername2" => isAscending ? query.OrderBy(x => x.ArcustomerName2) : query.OrderByDescending(x => x.ArcustomerName2),
+                        "arcustomername3" => isAscending ? query.OrderBy(x => x.ArcustomerName3) : query.OrderByDescending(x => x.ArcustomerName3),
+                        _ => isAscending ? query.OrderBy(x => x.AacreatedDate) : query.OrderByDescending(x => x.AacreatedDate)
                     };
                 }
                 else
@@ -191,30 +183,33 @@ namespace BYS.Mobile.API.Business.Implements
                         : query.OrderByDescending(x => x.AacreatedDate);
                 }
 
-                query = query.AsNoTracking()
-                    .Where(predicate);
+                // 4. Áp dụng điều kiện + paginate
+                query = query
+                    .Where(predicate)
+                    .AsNoTracking();
+
                 int totalRow = await query.CountAsync();
-                request.PageIndex = Math.Max(Constant.MinPageIndexValue, request.PageIndex);
-                request.PageSize = Math.Clamp(request.PageSize, Constant.MinPageSizeValue, Constant.MaxPageSizeValue);
+
                 var paginatedQuery = query
                     .Skip((request.PageIndex - 1) * request.PageSize)
                     .Take(request.PageSize);
+
                 var result = await _mapper.ProjectTo<CustomerResponse>(paginatedQuery).ToListAsync();
-                var paginationSet = new PagedResult<CustomerResponse>()
+
+                return new PagedResult<CustomerResponse>
                 {
                     Results = result,
                     CurrentPage = request.PageIndex,
                     RowCount = totalRow,
                     PageSize = request.PageSize
                 };
-
-                return paginationSet;
             }
             catch (Exception e)
             {
-                throw new DomainException(ErrorCode.System, $"GET CUSTUMERS ERROR: {e.Message}");
+                throw new DomainException(ErrorCode.System, $"GET CUSTOMERS ERROR: {e.Message}");
             }
         }
+
 
         public async Task<CustomerResponse> Create(CustomerRequest request)
         {
