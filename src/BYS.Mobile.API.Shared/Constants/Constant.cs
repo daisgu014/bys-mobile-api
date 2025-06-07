@@ -71,6 +71,7 @@
     public class Status
     {
         public const string ALIVE = "Alive";
+        public const string NEW = "New";
     }
 
     public class GENumbering
@@ -92,5 +93,10 @@
     public class ARCustomerTypeAccountConfigName
     {
         public const string CustomerReceivableAccountVND = "Phải thu khách hàng (VND)";
+    }
+
+    public class BranchType
+    {
+        public const string Central = "Central";
     }
 }

@@ -21,7 +21,7 @@ public partial class Hremployee : IIdentity<int>
     [Column("AAStatus")]
     [StringLength(10)]
     [Unicode(false)]
-    public string Aastatus { get; set; }
+    public string Aastatus { get; set; }    
 
     [Column("AACreatedUser")]
     [StringLength(50)]

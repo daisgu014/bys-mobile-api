@@ -22,6 +22,8 @@ namespace BYS.Mobile.API.Data
             services.AddScoped<IGenumberingRepository, GenumberingRepository>();
             services.AddScoped<IAdConfigValueRepository, AdConfigValueRepository>();
             services.AddScoped<IArcustomerTypeAccountConfigRepository, ArcustomerTypeAccountConfigRepository>();
+            services.AddScoped<IHremployeeRepository, HremployeeRepository>();
+            services.AddScoped<IBrbranchRepository, BrbranchRepository>();
         }
     }
 }

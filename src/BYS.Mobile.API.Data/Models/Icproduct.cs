@@ -670,4 +670,8 @@ public partial class Icproduct : IIdentity<int>
 
     [InverseProperty("FkIcproductParent")]
     public virtual ICollection<Icproduct> InverseFkIcproductParent { get; set; } = new List<Icproduct>();
+    
+    [ForeignKey("FkIcproductGroupId")]
+    [InverseProperty("Icproducts")]
+    public virtual IcproductGroup FkIcproductGroup { get; set; }
 }

@@ -337,4 +337,7 @@ public partial class ArproposalItem : IIdentity<int>
     [ForeignKey("FkIcsectionProductId")]
     [InverseProperty("ArproposalItemFkIcsectionProducts")]
     public virtual Icproduct FkIcsectionProduct { get; set; }
+    [ForeignKey("FkIcproductGroupId")]
+    [InverseProperty("ArproposalItems")]
+    public virtual IcproductGroup FkIcproductGroup { get; set; }
 }

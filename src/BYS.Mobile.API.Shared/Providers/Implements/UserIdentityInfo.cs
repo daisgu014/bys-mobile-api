@@ -22,6 +22,6 @@ namespace BYS.Mobile.API.Shared.Providers.Implements
         [JsonProperty("device_id")]
         public string DeviceId { get; set; }
         [JsonProperty("hr_employee_id")]
-        public string HrEmployeeId { get; set; }
+        public int HrEmployeeId { get; set; }
     }
 }

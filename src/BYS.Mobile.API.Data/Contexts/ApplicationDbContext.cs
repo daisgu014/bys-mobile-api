@@ -37,7 +37,8 @@ public class ApplicationDbContext : DbContext
      public virtual DbSet<Genumbering> Genumberings { get; set; }
      public virtual DbSet<AdconfigValue> AdconfigValues { get; set; }
      public virtual DbSet<ArcustomerTypeAccountConfig> ArcustomerTypeAccountConfigs { get; set; }
-
+    public virtual DbSet<IcproductGroup> IcproductGroups { get; set; }
+    public virtual DbSet<Brbranch> Brbranchs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -95,6 +96,7 @@ public class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_ARProposalItems_ICProducts");
 
             entity.HasOne(d => d.FkIcsectionProduct).WithMany(p => p.ArproposalItemFkIcsectionProducts).HasConstraintName("FK_ARProposalItems_ICSectionProducts");
+            entity.HasOne(d => d.FkIcproductGroup).WithMany(p => p.ArproposalItems).HasConstraintName("FK_ARProposalItems_ICProductGroups");
         });
 
         modelBuilder.Entity<Icproduct>(entity =>
@@ -132,6 +134,12 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(d => d.FkIcproductSaleUnit).WithMany(p => p.IcproductFkIcproductSaleUnits).HasConstraintName("FK_ICProducts_ICMeasureUnits1");
 
             entity.HasOne(d => d.FkIcproductThickGroup).WithMany(p => p.IcproductFkIcproductThickGroups).HasConstraintName("FK_ICProducts_ICProductAttributes8");
+            entity.HasOne(d => d.FkIcproductGroup).WithMany(p => p.Icproducts)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ICProducts_ICProductGroups");
+
+            entity.HasOne(d => d.FkIcproductParent).WithMany(p => p.InverseFkIcproductParent).HasConstraintName("ICProducts_FK_ICProductParentID");
+        
         });
 
         modelBuilder.Entity<IcproductAttribute>(entity =>
@@ -168,6 +176,20 @@ public class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.AdconfigValueId).HasName("PK_ADNewConfigValue");
         });
+        modelBuilder.Entity<IcproductGroup>(entity =>
+        {
+            entity.HasKey(e => e.IcproductGroupId).HasName("PK_MAProductGroup");
+        });
+        modelBuilder.Entity<Brbranch>(entity =>
+        {
+            entity.HasKey(e => e.BrbranchId).HasName("PK_BRBranchServers");
 
+            entity.ToTable("BRBranchs", tb => tb.HasTrigger("TRG_InsertUpdateBranch"));
+
+            entity.Property(e => e.BrbranchContactHeaderLetter).HasComment("fuer Umschlag: zB. Z.Hand Herrn Meyer");
+            entity.Property(e => e.BrbranchContactHeaderMessage).HasComment("Anrede fuer Briefe");
+
+            entity.HasOne(d => d.BrbranchParent).WithMany(p => p.InverseBrbranchParent).HasConstraintName("FK_BRBranchs_BRBranchs");
+        });
     }
 }
