@@ -11,4 +11,6 @@ public class CustomerRequest
     public string ArcustomerContactName { get; set; }
     [Required]
     public string ArcustomerContactPhone { get; set; }
+
+    public string ArcustomerTypeCombo { get; set; }
 }

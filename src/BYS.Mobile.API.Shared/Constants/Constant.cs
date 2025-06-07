@@ -78,4 +78,19 @@
         public const string CUSTOMER = "Customer";
         public const string PROPOSAL = "Proposal";
     }
+
+    public class ConfigKeyGroup
+    {
+        public const string CustomerType = "CustomerType";
+    }
+
+    public class ConfigKey
+    {
+        public const string CustomerTypeChuaXacDinh = "CustomerTypeChuaXacDinh";
+    }
+
+    public class ARCustomerTypeAccountConfigName
+    {
+        public const string CustomerReceivableAccountVND = "Phải thu khách hàng (VND)";
+    }
 }

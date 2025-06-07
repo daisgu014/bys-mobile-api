@@ -13,6 +13,8 @@ namespace BYS.Mobile.API.Service
            services.AddScoped<IIcproductService, IcproductService>();
            services.AddScoped<IAduserService, AduserService>();
            services.AddScoped<IGenumberingService, GenumberingService>();
+           services.AddScoped<IAdConfigValueService, AdConfigValueService>();
+           services.AddScoped<IArcustomerTypeAccountConfigService, ArcustomerTypeAccountConfigService>();
         }
     }
 }

@@ -738,4 +738,7 @@ public partial class Arcustomer : IIdentity<int>
 
     [InverseProperty("FkArcustomer")]
     public virtual ICollection<Icproduct> Icproducts { get; set; } = new List<Icproduct>();
+    [ForeignKey("FkArcustomerTypeAccountConfigId")]
+    [InverseProperty("Arcustomers")]
+    public virtual ArcustomerTypeAccountConfig FkArcustomerTypeAccountConfig { get; set; }
 }

@@ -20,6 +20,8 @@ namespace BYS.Mobile.API.Data
             services.AddScoped<IArpriceSheetRepository, ArpriceSheetRepository>();
             services.AddScoped<IAduserRepository, AduserRepository>();
             services.AddScoped<IGenumberingRepository, GenumberingRepository>();
+            services.AddScoped<IAdConfigValueRepository, AdConfigValueRepository>();
+            services.AddScoped<IArcustomerTypeAccountConfigRepository, ArcustomerTypeAccountConfigRepository>();
         }
     }
 }

@@ -35,6 +35,8 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Hremployee> Hremployees { get; set; }
 
      public virtual DbSet<Genumbering> Genumberings { get; set; }
+     public virtual DbSet<AdconfigValue> AdconfigValues { get; set; }
+     public virtual DbSet<ArcustomerTypeAccountConfig> ArcustomerTypeAccountConfigs { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -48,6 +50,9 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(e => e.ArcustomerId).HasName("PK_Customer");
 
             entity.ToTable("ARCustomers", tb => tb.HasTrigger("TRG_InsertUpdateCustomer"));
+            entity.HasOne(d => d.FkArcustomerTypeAccountConfig).WithMany(p => p.Arcustomers)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ARCustomers_FK_ARCustomerTypeAccountConfigID");
         });
 
         modelBuilder.Entity<ArpriceSheet>(entity =>
@@ -159,5 +164,10 @@ public class ApplicationDbContext : DbContext
                 .HasDefaultValueSql("((0))")
                 .HasComment("0:Auto\r\n1:Manual");
         });
+        modelBuilder.Entity<AdconfigValue>(entity =>
+        {
+            entity.HasKey(e => e.AdconfigValueId).HasName("PK_ADNewConfigValue");
+        });
+
     }
 }

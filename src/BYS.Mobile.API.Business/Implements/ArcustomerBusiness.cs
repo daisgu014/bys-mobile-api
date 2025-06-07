@@ -20,14 +20,20 @@ namespace BYS.Mobile.API.Business.Implements
     {
         private readonly IArcustomerService _arcustomerService;
         private readonly IGenumberingService _genumberingService;
+        private readonly IAdConfigValueService _adConfigValueService;
+        private readonly IArcustomerTypeAccountConfigService _arcustomerTypeAccountConfigService;
         public ArcustomerBusiness(ICoreProvider coreProvider
             , IUnitOfWorkService unitOfWorkService
             , IArcustomerService arcustomerService
             , IGenumberingService genumberingService
+            , IAdConfigValueService adConfigValueService
+            , IArcustomerTypeAccountConfigService arcustomerTypeAccountConfigService
             ) : base(coreProvider, unitOfWorkService)
         {
             _arcustomerService = arcustomerService;
             _genumberingService = genumberingService;
+            _adConfigValueService = adConfigValueService;
+            _arcustomerTypeAccountConfigService = arcustomerTypeAccountConfigService;
         }
 
         private async Task<string> GetNextNumberAsync()
@@ -54,7 +60,8 @@ namespace BYS.Mobile.API.Business.Implements
                 .Replace("{3}", objGENumberingInfo.GenumberingPrefixHaveMonth == true ? currentDate.Month.ToString().PadLeft(2, '0') : "")
                 .Replace("{4}", objGENumberingInfo.GenumberingPrefixHaveDay == true ? currentDate.Day.ToString().PadLeft(2, '0') : "")
                 .Replace("{5}", "")
-                .Replace("{6}", "");
+                .Replace("{6}", "")
+                .Replace("{7}", "");
 
             string prefixMatch = prefix.Replace("{7}", ""); // Giống như: "CUS240601-"
 
@@ -217,6 +224,26 @@ namespace BYS.Mobile.API.Business.Implements
                 data.AacreatedUser = _coreProvider.IdentityProvider.Identity.UserIdentity.Username;
                 data.AacreatedDate = DateTime.UtcNow;
                 data.ArcustomerNo = await GetNextNumberAsync();
+                if (string.IsNullOrEmpty(request.ArcustomerTypeCombo))
+                {
+                    var typeCompo = await _adConfigValueService
+                        .FirstOrDefaultAsync(x =>
+                            EF.Functions.Like(x.AdconfigKeyGroup, ConfigKeyGroup.CustomerType) &&
+                            EF.Functions.Like(x.AdconfigKey, ConfigKey.CustomerTypeChuaXacDinh)
+                        ) ?? throw new DomainException(ErrorCode.NullReference, $"Can not found ConfigKeyChuaXacDinh");
+
+                    data.ArcustomerTypeCombo = typeCompo.AdconfigKeyValue;
+                }
+
+                // Hardcode
+                var typeConfig = await _arcustomerTypeAccountConfigService
+                    .FirstOrDefaultAsync(x =>
+                        EF.Functions.Like(x.ArcustomerTypeAccountConfigName, ARCustomerTypeAccountConfigName.CustomerReceivableAccountVND) &&
+                        EF.Functions.Like(x.Aastatus, Status.ALIVE)
+                    ) ?? throw new DomainException(ErrorCode.NullReference, $"Can not found TypeConfig");
+
+                data.FkArcustomerTypeAccountConfigId = typeConfig.Id;
+
                 await _unitOfWorkService.ExecuteInTransactionAsync(async () =>
                 {
                     await _arcustomerService.InsertAsync(data);
